@@ -1,9 +1,7 @@
-#Reinaldo Alves Pereira Junior
-#Projeto feito para planejamento de dietas conforme o IMC do paciente.
-#UFRN 24/06/2023 
-#Professor Flavius Gorgonio.
+import os
 
-class Paciente: #onde vai ficar dados dos pacientes
+
+class Paciente:
     def __init__(self, nome, peso, altura, hora_consulta, data_consulta):
         self.nome = nome
         self.peso = peso
@@ -11,24 +9,54 @@ class Paciente: #onde vai ficar dados dos pacientes
         self.hora_consulta = hora_consulta
         self.data_consulta = data_consulta
 
-    def calcular_imc(self): #calculo do IMC
+    def calcular_imc(self):
         altura_in_metros = self.altura / 100
         return self.peso / (altura_in_metros ** 2)
 
 
-class PyeDiet: #funções do projeto
+class PyeDiet:
     def __init__(self):
         self.pacientes = []
+        self.carregar_pacientes()
 
     def adicionar_paciente(self, paciente):
         self.pacientes.append(paciente)
 
+    def salvar_pacientes(self):
+        diretorio = r"C:\Users\tomad\Desktop\pydiet"
+        if not os.path.exists(diretorio):
+            os.makedirs(diretorio)
+        arquivo = os.path.join(diretorio, "pacientes.txt")
+        with open(arquivo, "w") as f:
+            for paciente in self.pacientes:
+                f.write(
+                    f"{paciente.nome},{paciente.peso},{paciente.altura},{paciente.hora_consulta},{paciente.data_consulta}\n"
+                )
+        print("Dados dos pacientes salvos com sucesso!")
+
+    def carregar_pacientes(self):
+        arquivo = os.path.join(r"C:\Users\tomad\Desktop\pydiet", "pacientes.txt")
+        if not os.path.exists(arquivo):
+            print("Nenhum paciente cadastrado.")
+            return
+        with open(arquivo, "r") as f:
+            for linha in f:
+                dados = linha.strip().split(",")
+                nome = dados[0]
+                peso = float(dados[1])
+                altura = float(dados[2])
+                hora_consulta = dados[3]
+                data_consulta = dados[4]
+                paciente = Paciente(nome, peso, altura, hora_consulta, data_consulta)
+                self.adicionar_paciente(paciente)
+        print("Dados dos pacientes carregados com sucesso!")
+
     def editar_paciente(self, nome):
         for paciente in self.pacientes:
             if paciente.nome == nome:
-                print(f"Paciente encontrado. Agora edite as informações:")
+                print("Paciente encontrado. Agora edite as informações:")
                 peso = float(input("Digite o novo peso do paciente em kg: "))
-                altura = float(input("Digite a nova altura do paciente em centimetros: "))
+                altura = float(input("Digite a nova altura do paciente em centímetros: "))
                 hora_consulta = input("Digite a nova hora da consulta com o nutricionista: ")
                 data_consulta = input("Digite a nova data da consulta com o nutricionista: ")
                 paciente.peso = peso
@@ -54,7 +82,7 @@ class PyeDiet: #funções do projeto
         elif imc > 26.5:
             return "Plano de dieta para diminuir peso, precisa fazer muitos exercícios físicos e comer menos."
         else:
-            return "O IMC do paciente está dentro da faixa saudável. continue mantendo essa constancia para ter uma vida saúdavel"
+            return "O IMC do paciente está dentro da faixa saudável. Continue mantendo essa constância para ter uma vida saudável."
 
     def listar_pacientes(self):
         print("\nLista de Pacientes Cadastrados:")
@@ -66,7 +94,7 @@ class PyeDiet: #funções do projeto
                 print(f"Data da consulta: {paciente.data_consulta}")
                 print(f"Hora da consulta: {paciente.hora_consulta}")
 
-    def run(self): #mostrar o CRUD
+    def run(self):
         while True:
             print("\n====== PyeDiet ======")
             print("1. Cadastrar paciente")
@@ -116,6 +144,7 @@ class PyeDiet: #funções do projeto
                 self.excluir_paciente(nome)
 
             elif escolha == "0":
+                self.salvar_pacientes()
                 print("Saindo...")
                 break
 
